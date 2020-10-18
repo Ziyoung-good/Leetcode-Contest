@@ -1,0 +1,59 @@
+1621. Number of Sets of K Non-Overlapping Line Segments
+
+Given n points on a 1-D plane, where the ith point (from 0 to n-1) is at x = i, find the number of ways we can draw exactly k non-overlapping line segments such that each segment covers two or more points. The endpoints of each segment must have integral coordinates. The k line segments do not have to cover all n points, and they are allowed to share endpoints.
+
+Return the number of ways we can draw k non-overlapping line segments. Since this number can be huge, return it modulo 109 + 7.
+
+idea1 smartest Solution:
+
+https://leetcode.com/problems/number-of-sets-of-k-non-overlapping-line-segments/discuss/898830/Python-O(N)-Solution-with-Prove
+
+idea2 normal Recursion Solution:
+
+  key Idea is to analyze the status of every segment
+  
+                        continue
+   continue a segment:  terminal and not start
+                        terminal and start
+   
+                                start
+   not continue a segment now:
+                                not start
+                                
+   if at the endpoint k == 0: return 1
+                      else:   return 0
+                      
+   For Pruning： if in the process: k < 0: return 0
+   
+   Link:https://leetcode.com/problems/number-of-sets-of-k-non-overlapping-line-segments/discuss/898844/Top-Down-DP-or-O(n*k)
+   Code:
+   
+    def numberOfSets(self, n: int, k: int) -> int:
+
+        @lru_cache(None)
+        def helper(i, k, started):
+            if i == n - 1:
+                if k:
+                    return 0
+                else:
+                    return 1
+            if k < 0:
+                return 0
+            ans = 0
+            if started:
+                # Continue the last segment, then make k more
+                ans += helper(i + 1, k, True)
+                # Terminate the last segment, and new segment is empty
+                ans += helper(i + 1, k, False)
+                # Terminate the last segment and start a new one
+                ans += helper(i + 1, k - 1, True)
+            else:
+                # New segment is empty, we still need k
+                ans += helper(i + 1, k, False)
+                # Start a new segment, we still need k - 1
+                ans += helper(i + 1, k - 1, True)
+            return ans % (10 ** 9 + 7)
+
+        return helper(0, k, False)
+
+
