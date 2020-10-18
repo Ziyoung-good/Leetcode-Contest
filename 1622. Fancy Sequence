@@ -1,0 +1,93 @@
+Write an API that generates fancy sequences using the append, addAll, and multAll operations.
+
+Implement the Fancy class:
+
+Fancy() Initializes the object with an empty sequence.
+void append(val) Appends an integer val to the end of the sequence.
+void addAll(inc) Increments all existing values in the sequence by an integer inc.
+void multAll(m) Multiplies all existing values in the sequence by an integer m.
+int getIndex(idx) Gets the current value at index idx (0-indexed) of the sequence modulo 109 + 7. If the index is greater or equal than the length of the sequence, return -1.
+
+
+Example:
+
+Input
+["Fancy", "append", "addAll", "append", "multAll", "getIndex", "addAll", "append", "multAll", "getIndex", "getIndex", "getIndex"]
+[[], [2], [3], [7], [2], [0], [3], [10], [2], [0], [1], [2]]
+Output
+[null, null, null, null, null, 10, null, null, null, 26, 34, 20]
+
+Explanation
+Fancy fancy = new Fancy();
+fancy.append(2);   // fancy sequence: [2]
+fancy.addAll(3);   // fancy sequence: [2+3] -> [5]
+fancy.append(7);   // fancy sequence: [5, 7]
+fancy.multAll(2);  // fancy sequence: [5*2, 7*2] -> [10, 14]
+fancy.getIndex(0); // return 10
+fancy.addAll(3);   // fancy sequence: [10+3, 14+3] -> [13, 17]
+fancy.append(10);  // fancy sequence: [13, 17, 10]
+fancy.multAll(2);  // fancy sequence: [13*2, 17*2, 10*2] -> [26, 34, 20]
+fancy.getIndex(0); // return 26
+fancy.getIndex(1); // return 34
+fancy.getIndex(2); // return 20
+
+
+Idea:
+
+a*x + b  <---- Before operation
+c*x + d  <---- Whole operation until get idx
+
+The RelationShip between two equation: e*(a*x+b)+f = c*x+d
+Our target is to find e*x+f
+Here:
+e*a = c (1)
+e*b + f = d (2)
+Use above two equation we can get value of unknown parameters e and f
+
+Python Solution Code:
+
+class Fancy(object):
+
+    def __init__(self):
+        self.arr = []
+        self.prev = [[1,0]]
+
+    def append(self, val):
+        """
+        :type val: int
+        :rtype: None
+        """
+        self.arr.append(val)
+        self.prev.append(list(self.prev[-1]))
+        return 
+    
+    def addAll(self, inc):
+        """
+        :type inc: int
+        :rtype: None
+        """
+        self.prev[-1][1] += inc
+        return
+    
+    def multAll(self, m):
+        """
+        :type m: int
+        :rtype: None
+        """
+        self.prev[-1][0] *= m
+        self.prev[-1][1] *= m
+        return 
+        
+    def getIndex(self, idx):
+        """
+        :type idx: int
+        :rtype: int
+        """
+        if idx >= len(self.arr):
+            return -1
+        c, d = self.prev[-1]
+        a, b = self.prev[idx]
+        e = c // a
+        f = d - e*b
+        
+        return (self.arr[idx]*e+f)%(10**9+7)
